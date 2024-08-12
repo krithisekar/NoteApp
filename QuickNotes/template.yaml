@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  QuickNotes
+
+  Sample SAM Template for QuickNotes
+
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 128
+    LoggingConfig:
+      LogFormat: JSON
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
+    Properties:
+      CodeUri: hello-world/
+      Handler: hello-world
+      Runtime: provided.al2023
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorldApi:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+
+  NotesFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: go1.x
+    Properties:
+      CodeUri: hello-world/
+      Handler: main
+      Runtime: go1.x
+      Architectures:
+        - x86_64
+      Events:
+        GetNote:
+          Type: Api
+          Properties:
+            Path: /note
+            Method: GET
+    Environment:
+      Variables:
+        TABLE_NAME: NotesTable
+
+Outputs:
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for HelloWorld function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  HelloWorldFunction:
+    Description: "HelloWorld Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for HelloWorld function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn
+
+  NotesFunctionAPI:
+    Description: API Gateway endpoint URL for NotesFunction
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/note/"
+  NotesFunction:
+    Description: Notes Lambda Function ARN
+    Value: !GetAtt NotesFunction.Arn
+  NotesFunctionIamRole:
+    Description: Implicit IAM Role created for NotesFunction
+    Value: !GetAtt NotesFunctionRole.Arn
